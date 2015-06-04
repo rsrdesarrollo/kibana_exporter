@@ -1,9 +1,14 @@
 doctype html
 html
-  head
-    title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
-    script(src='/socket.io/socket.io.js')
-    block script_import
-  body
-    block content
+     head
+         title= title
+         script(src='/js/jquery.js')
+         script(src='/socket.io/socket.io.js')
+         link(rel='stylesheet', href='/css/style.css')
+         link(rel='stylesheet', href='/css/bootstrap.css')
+         link(rel='stylesheet', href='/css/bootstrap-theme.css')
+         script(src='/js/bootstrap.min.js')
+         block script_import
+     body
+         #main-container.container
+             block container
