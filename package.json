@@ -1,6 +1,6 @@
 {
-  "name": "proxy_nav_export",
-  "version": "0.0.0",
+  "name": "kibana_exporter",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
@@ -14,8 +14,6 @@
     "elasticsearch": "^4.1.0",
     "express": "~4.12.4",
     "jade": "~1.9.2",
-    "json-2-csv": "^1.3.0",
-    "json2csv": "^2.3.0",
     "mime": "^1.3.4",
     "moment": "^2.10.3",
     "morgan": "~1.5.3",
