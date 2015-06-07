@@ -7,8 +7,10 @@ block container
     .row
         .col-md-8
             h1= title
+                span#status.label
     .row
         #error.col-md-8.alert.alert-danger(style={display:'none'} role='alert')
+            span.glyphicon.glyphicon-exclamation-sign(aria-hidden="true")
     .row
         #message.col-md-6.alert(style={display:'none'}, role='alert')
             #job-progress.progress(style='display:none')

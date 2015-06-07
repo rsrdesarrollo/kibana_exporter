@@ -11,9 +11,11 @@ Job.prototype.run = function(cb){
     var context = this; 
 
     this.parse_data(function(err, res){
-       if(err) throw err;
-
-       context._run(res,cb);
+        if(err) {
+            context.notify_error(err);
+            return;
+        }
+        context._run(res,cb);
     });
 }
 

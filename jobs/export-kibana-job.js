@@ -63,25 +63,42 @@ KibanaJob.prototype = Object.create(Job.prototype);
  */
 
 KibanaJob.prototype.parse_data = function(cb){
-    var _url = url.parse(this.data.url_query);
-    var _url_hash = url.parse(_url.hash.replace('#','hash'));
-    _url.query = _url_hash.query;
+    try{
+        var _url = url.parse(this.data.url_query);
+        var _url_hash = url.parse(_url.hash.replace('#','hash'));
+        _url.query = _url_hash.query;
+    }catch(err){
+        cb("Not valid Kibana URL");
+        return;   
+    }
 
     var query = querystring.parse(_url.query);
     
     var kibanaCli = new kibana(path.join(_url.host,_url.pathname));
 
-    var globalStash = rison.decode(query._g || '()');
-    var appStash = rison.decode(query._a || '()');
+    var globalStash = rison.decode(query._g || 'not_def');
+    var appStash = rison.decode(query._a || 'not_def');
+    
+    try{
+        if(globalStash.time.mode != 'absolute'){
+            cb("Query date range type has to be absolute");
+            return;
+        }
 
-    if(globalStash.time.mode != 'absolute'){
-        return cb("Query date range type has to be absolute");
+        var from_date = moment(globalStash.time.from).utc();
+        var to_date = moment(globalStash.time.to).utc();
+        
+    }catch(err){
+        cb("Incomplete kibana URL");
+        return;
     }
 
-    var from_date = moment(globalStash.time.from).utc()
-    var to_date = moment(globalStash.time.to).utc()
-    
     kibanaCli.get_default_index(function(err, idx){
+        if(err){
+            cb(err.toString());
+            return;
+        }
+
         var ret = {
             host: path.join(_url.host, _url.pathname),
             query_arg: {}
