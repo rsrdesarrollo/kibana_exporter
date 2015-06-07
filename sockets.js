@@ -1,32 +1,15 @@
-function demo_sample_job(client){
-    var aux = 0;
-    var progress = function(){
-        aux += 10;
-        if(aux < 100){
-            setTimeout(progress, 100);
-            client.emit('job status', {
-                done: aux,
-                total: 100,
-                progress: aux
-            }); 
-        }else{
-            client.emit('job end', {file_result:"/js/jquery.js"});
-        }
-        
-
-        console.log("Job progress:", aux);
-
-    };
-
-    progress();
-}
+var export_kibana_job = require('./jobs/export-kibana-job');
 
 function handle_new_job(client, data){
     
-    console.log("New Job", data, client);
+    console.log("New Job", data);
     client.emit('job started');
 
-    demo_sample_job(client);
+    var job = new export_kibana_job(client,data);
+    job.run(function(err){
+        if(err)
+            console.log("[!] ERROR runing job: ", err);
+    })
 }
 
 module.exports = function(io){
