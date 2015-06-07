@@ -188,6 +188,10 @@ KibanaJob.prototype._run = function(query_data, cb){
             query_data.query_arg.from = context.done;
             query_data.query_arg.size = BULK;
             
+            if(context._canceled){
+                cb("Job canceled");
+                return;
+            }
                                     // Job
             async.waterfall([
                 function(cb){               // Run query
@@ -250,8 +254,7 @@ KibanaJob.prototype._run = function(query_data, cb){
     function(err){
         if(err){
             console.log("ERROR: runing export-kibana-job", err);
-            context.notify_error('Unable to connect to elasticsearch at '
-                +query_data.host);
+            context.notify_error(err.toString());
         }
     });
 }

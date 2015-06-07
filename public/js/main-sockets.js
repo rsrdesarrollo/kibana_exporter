@@ -1,5 +1,6 @@
 $(function(){
     var socket = io.connect();
+    var job_runing = false;
 
     var message_box = $("#message");
     var progress_bar = $("#job-progress");
@@ -16,8 +17,20 @@ $(function(){
     }
 
     function submit_job(event){
-        event.preventDefault();
-        socket.emit('new job', {url_query:url_query.val()});
+        if(job_runing){
+            notify_error({msg: "Job runing. Wait or cancel it."});
+        }else{
+            event.preventDefault();
+            socket.emit('new job', {url_query:url_query.val()});
+        }
+    }
+    
+    function cancel_job(){
+        if(job_runing){
+            socket.emit('cancel job');
+            message_box.slideUp();
+            job_runing = false;
+        }
     }
 
     function notify_job_start(data){
@@ -26,12 +39,13 @@ $(function(){
         message_box.removeClass('alert-success');
         message_txt.text("Job submited success. Starting job...");
         progress_bar.show();
-        
+
+        job_runing = true;    
         update_progress_bar(0);
     }
 
     function notify_job_status(data){
-        message_txt.text("Runing Job ..."+data.done+"/"+data.total);
+        message_txt.text("Runing: Progress "+ data.progress+"% - [ "+data.done+" / "+data.total+" ]");
         update_progress_bar(data.progress);
     }
 
@@ -41,6 +55,7 @@ $(function(){
         progress_bar.fadeOut();
         message_txt.html("<span>Job finished: </span><a href='/job/"+data.file_result+"'> Download result</a>");
 
+        job_runing = false;
     }
 
     function notify_error(data){
@@ -80,7 +95,17 @@ $(function(){
     socket.on('disconnect', notify_socket_disconnect);
     socket.on('connect', notify_socket_connect);
 
-    $("#job").submit(submit_job);
+    // Submit job on enter
+    $('form#job .input').keypress(function(e){
+        if(e.which == 13){
+            $('form#job').submit();
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    $("form#job").submit(submit_job);
+    $("#cancel-job").click(cancel_job);
 
 });
 

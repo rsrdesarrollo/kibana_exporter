@@ -19,6 +19,10 @@ Job.prototype.run = function(cb){
     });
 }
 
+Job.prototype.cancel = function(){
+    this._canceled = true;
+}
+
 
 Job.prototype.notify_error = function(err){
     this.client.emit('job error',{msg:err});
