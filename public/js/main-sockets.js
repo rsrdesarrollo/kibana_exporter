@@ -5,6 +5,7 @@ $(function(){
     var progress_bar = $("#job-progress");
     var message_txt = $("#message-txt");
     var url_query = $("#url_query");
+    var error = $("#error");
 
     function update_progress_bar(value){
         var pb = progress_bar.children(".progress-bar");
@@ -37,13 +38,22 @@ $(function(){
         message_box.removeClass('alert-info');
         message_box.addClass('alert-success');
         progress_bar.fadeOut();
-        message_txt.html("<span>Job finished: </span><a href='"+data.file_result+"'> Download result</a>");
+        message_txt.html("<span>Job finished: </span><a href='/job/"+data.file_result+"'> Download result</a>");
 
+    }
+
+    function notify_error(data){
+        message_box.slideUp();
+        error.text(data.msg);
+        error.slideDown();
+
+        setTimeout(function(){error.fadeOut()}, 10000);
     }
 
     socket.on('job started', notify_job_start);
     socket.on('job status', notify_job_status);
     socket.on('job end', notify_job_end);
+    socket.on('job error', notify_error);
 
     $("#job").submit(submit_job);
 
