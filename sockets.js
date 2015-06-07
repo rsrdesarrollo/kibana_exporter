@@ -31,10 +31,13 @@ module.exports = function(io){
             client:socket
         };
         
+        console.log("[i] New client from",socket.handshake.address,
+                    'at',socket.handshake.time);
+
         socket.on('new job', _.partial(handle_new_job,session));
         socket.on('cancel job',_.partial(handle_cancel_job,session));       
         socket.on('disconnect', function(){
-            console.log("[i] Client disconected, canceling pending jobs.");
+            console.log("[i] Client disconected",socket.handshake.address,": canceling pending jobs.");
             handle_cancel_job(session);
         });
     });

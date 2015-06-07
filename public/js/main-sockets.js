@@ -8,6 +8,8 @@ $(function(){
     var url_query = $("#url_query");
     var error = $("#error");
     var stat = $("#status");
+    var cancel_btn = $("#cancel-job");
+    var job_frm = $("form#job");
 
     function update_progress_bar(value){
         var pb = progress_bar.children(".progress-bar");
@@ -18,7 +20,7 @@ $(function(){
 
     function submit_job(event){
         if(job_runing){
-            notify_error({msg: "Job runing. Wait or cancel it."});
+            notify_error({msg: "Job runing. Wait or cancel it."}, true);
         }else{
             event.preventDefault();
             socket.emit('new job', {url_query:url_query.val()});
@@ -41,6 +43,7 @@ $(function(){
         progress_bar.show();
 
         job_runing = true;    
+        cancel_btn.removeClass('disabled');
         update_progress_bar(0);
     }
 
@@ -56,10 +59,14 @@ $(function(){
         message_txt.html("<span>Job finished: </span><a href='/job/"+data.file_result+"'> Download result</a>");
 
         job_runing = false;
+        cancel_btn.addClass('disabled');
     }
 
-    function notify_error(data){
-        message_box.slideUp();
+    function notify_error(data,prevent_msg_hide){
+        if(!prevent_msg_hide){
+            job_runing = false;
+            message_box.slideUp();
+        }
         error.text(data.msg);
         error.slideDown();
 
@@ -67,11 +74,7 @@ $(function(){
     }
 
     function notify_socket_disconnect(){
-        //*
         stat.html("<span class='glyphicon glyphicon-remove'><span/>");
-        /*/
-        stat.text("Disconnected");
-        /**/
         stat.addClass('label-danger');
         stat.removeClass('label-success');
 
@@ -79,11 +82,7 @@ $(function(){
     }
 
     function notify_socket_connect(){
-        //*
         stat.html("<span class='glyphicon glyphicon-ok'><span/>");
-        /*/
-        stat.text("Connected");
-        /**/
         stat.removeClass('label-danger');
         stat.addClass('label-success');
     }
@@ -95,17 +94,8 @@ $(function(){
     socket.on('disconnect', notify_socket_disconnect);
     socket.on('connect', notify_socket_connect);
 
-    // Submit job on enter
-    $('form#job .input').keypress(function(e){
-        if(e.which == 13){
-            $('form#job').submit();
-            e.preventDefault();
-            return false;
-        }
-    });
-
-    $("form#job").submit(submit_job);
-    $("#cancel-job").click(cancel_job);
+    job_frm.submit(submit_job);
+    cancel_btn.click(cancel_job);
 
 });
 
